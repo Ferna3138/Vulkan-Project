@@ -1,0 +1,3 @@
+C:\Users\Fernando Edelstein\Documents\Vulkan\Project1\x64\Debug\Project1.exe
+C:\Users\fernandoedelstein\Documents\Vulkan\Project1\x64\Debug\Project1.exe
+C:\Users\fernandoedelstein\Documents\Vulkan\Project3D\x64\Debug\Project1.exe
