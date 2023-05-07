@@ -41,6 +41,8 @@ class LveDevice {
 
   VkCommandPool getCommandPool() { return commandPool; }
   VkDevice device() { return device_; }
+  VkPhysicalDevice getPhysicalDevice() { return physicalDevice; }
+
   VkSurfaceKHR surface() { return surface_; }
   VkQueue graphicsQueue() { return graphicsQueue_; }
   VkQueue presentQueue() { return presentQueue_; }
@@ -58,6 +60,7 @@ class LveDevice {
       VkMemoryPropertyFlags properties,
       VkBuffer &buffer,
       VkDeviceMemory &bufferMemory);
+
   VkCommandBuffer beginSingleTimeCommands();
   void endSingleTimeCommands(VkCommandBuffer commandBuffer);
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);

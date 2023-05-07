@@ -6,10 +6,11 @@
 #include "lve_renderer.hpp"
 #include "lve_descriptors.hpp"
 
-
 //std
 #include <memory>
 #include <vector>
+
+
 namespace lve {
 	class FirstApp {
 
@@ -27,7 +28,7 @@ namespace lve {
 		private:
 			void loadGameObjects();
 			
-			LveWindow lveWindow{ WIDTH, HEIGHT, "Hello Vulkan" };
+			LveWindow lveWindow{ WIDTH, HEIGHT, "Vulkan Engine" };
 			LveDevice lveDevice{ lveWindow };
 			LveRenderer lveRenderer{ lveWindow, lveDevice };
 

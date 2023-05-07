@@ -18,6 +18,8 @@
 #include <cassert>
 #include <numeric>
 
+#include "lve_texture.hpp"
+
 #define MAX_FRAME_TIME 120
 
 namespace lve {
@@ -27,6 +29,7 @@ namespace lve {
             .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
         loadGameObjects(); 
 	}
@@ -34,7 +37,7 @@ namespace lve {
 	FirstApp::~FirstApp() {}
 
 
-	void FirstApp::run() {/*
+    void FirstApp::run() {/*
 
         LveBuffer globalUboBuffer{
             lveDevice,
@@ -45,9 +48,9 @@ namespace lve {
             lveDevice.properties.limits.minUniformBufferOffsetAlignment
         };
         globalUboBuffer.map();*/
-        
+
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < uboBuffers.size(); i++) { 
+        for (int i = 0; i < uboBuffers.size(); i++) {
             uboBuffers[i] = std::make_unique<LveBuffer>(
                 lveDevice,
                 sizeof(GlobalUbo),
@@ -59,13 +62,32 @@ namespace lve {
 
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
+
+        
+        Texture woodTexture = Texture(lveDevice, "C:\\Users\\fernandoedelstein\\Documents\\Vulkan\\Project1\\Textures\\image.png");
+
+        VkDescriptorImageInfo woodImageInfo{};
+        woodImageInfo.sampler = woodTexture.getSampler();
+        woodImageInfo.imageView = woodTexture.getImageView();
+        woodImageInfo.imageLayout = woodTexture.getImageLayout();
+
+        Texture metalTexture = Texture(lveDevice, "C:\\Users\\fernandoedelstein\\Documents\\Vulkan\\Project1\\Textures\\metal.jpg");
+
+        VkDescriptorImageInfo metalImageInfo{};
+        metalImageInfo.sampler = metalTexture.getSampler();
+        metalImageInfo.imageView = metalTexture.getImageView();
+        metalImageInfo.imageLayout = metalTexture.getImageLayout();
+
+
 
         std::vector<VkDescriptorSet>globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < globalDescriptorSets.size(); i++) {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)
+                .writeImage(1, &woodImageInfo)
                 .build(globalDescriptorSets[i]);
         }
 
@@ -129,9 +151,12 @@ namespace lve {
 
                 //Render
                 lveRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(frameInfo);
+				
+                //Order matters
+                simpleRenderSystem.renderGameObjects(frameInfo);
                 pointLightSystem.render(frameInfo);
-				lveRenderer.endSwapChainRenderPass(commandBuffer);
+				
+                lveRenderer.endSwapChainRenderPass(commandBuffer);
 				lveRenderer.endFrame();
 			}
 		}
@@ -169,7 +194,7 @@ namespace lve {
         floor.transform.translation = { 0.f, .5f, 0.f };
         floor.transform.scale = { 3.f, 1.f, 3.f };
         gameObjects.emplace(floor.getId(), std::move(floor));
-
+        
 
         std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},
